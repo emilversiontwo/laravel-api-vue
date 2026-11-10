@@ -14,6 +14,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/news', [NewsController::class, 'store']);
     Route::put('/news/{id}', [NewsController::class, 'update']);
     Route::delete('/news/{id}', [NewsController::class, 'destroy']);
+    Route::post('/news/{id}/like', [NewsController::class, 'like']);
 });
 
 Route::get('/news', [NewsController::class, 'index']);

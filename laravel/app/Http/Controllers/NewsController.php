@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\News;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -10,12 +11,30 @@ class NewsController extends Controller
 {
     public function index(): JsonResponse
     {
-        return response()->json(News::orderBy('published_at', 'desc')->get());
+        $user = auth('sanctum')->user();
+
+        return response()->json(
+            News::orderBy('published_at', 'desc')->get()->map(fn (News $news) => $this->present($news, $user)),
+        );
     }
 
     public function show(string $id): JsonResponse
     {
-        return response()->json(News::findOrFail($id));
+        return response()->json($this->present(News::findOrFail($id), auth('sanctum')->user()));
+    }
+
+    public function like(Request $request, string $id): JsonResponse
+    {
+        $news = News::findOrFail($id);
+        $userId = (string) $request->user()->id;
+
+        if (in_array($userId, $news->liked_by ?? [], true)) {
+            $news->pull('liked_by', $userId);
+        } else {
+            $news->push('liked_by', $userId, true);
+        }
+
+        return response()->json($this->present($news->fresh(), $request->user()));
     }
 
     public function store(Request $request): JsonResponse
@@ -29,7 +48,7 @@ class NewsController extends Controller
             'author_name' => $user->name,
         ]);
 
-        return response()->json($news, 201);
+        return response()->json($this->present($news, $user), 201);
     }
 
     public function update(Request $request, string $id): JsonResponse
@@ -39,7 +58,7 @@ class NewsController extends Controller
 
         $news->update($this->validated($request));
 
-        return response()->json($news);
+        return response()->json($this->present($news, $request->user()));
     }
 
     public function destroy(Request $request, string $id): JsonResponse
@@ -50,6 +69,17 @@ class NewsController extends Controller
         $news->delete();
 
         return response()->json(null, 204);
+    }
+
+    private function present(News $news, ?Authenticatable $user): array
+    {
+        $likedBy = $news->liked_by ?? [];
+
+        return [
+            ...$news->toArray(),
+            'likes_count' => count($likedBy),
+            'liked' => $user !== null && in_array((string) $user->id, $likedBy, true),
+        ];
     }
 
     private function validated(Request $request): array
