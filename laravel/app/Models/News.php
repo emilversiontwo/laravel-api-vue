@@ -12,5 +12,7 @@ class News extends Model
 
     protected $fillable = ['title', 'text', 'published_at', 'user_id', 'author_name'];
 
+    protected $hidden = ['liked_by'];
+
     protected $casts = ['published_at' => 'date:Y-m-d'];
 }
