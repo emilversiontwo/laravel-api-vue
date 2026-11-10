@@ -47,3 +47,28 @@
   color: var(--accent);
   background: var(--accent-bg);
 }
+
+.header__nav {
+  align-items: center;
+}
+
+.header__user {
+  padding: 0 8px;
+  color: var(--text-h);
+  font-weight: 600;
+}
+
+.header__logout {
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.header__logout:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
