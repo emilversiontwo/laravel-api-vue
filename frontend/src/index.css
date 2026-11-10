@@ -123,3 +123,44 @@ p {
     font-size: 2rem;
   }
 }
+
+.form-page {
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.form {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.form label {
+  display: grid;
+  gap: 6px;
+  color: var(--text-h);
+  font-weight: 500;
+}
+
+.form input {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font: inherit;
+}
+
+.form input:focus {
+  outline: 2px solid var(--accent);
+  border-color: transparent;
+}
+
+.form__error {
+  margin: 0;
+  color: #dc2626;
+}
+
+button.button {
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+}
