@@ -7,6 +7,8 @@ export interface NewsItem {
   published_at: string
   user_id: string
   author_name: string
+  likes_count: number
+  liked: boolean
 }
 
 export type NewsInput = Pick<NewsItem, 'title' | 'text'>
@@ -22,3 +24,5 @@ export const updateNews = (id: string, data: NewsInput) =>
   request<NewsItem>(`/news/${id}`, { method: 'PUT', body: JSON.stringify(data) })
 
 export const deleteNews = (id: string) => request<void>(`/news/${id}`, { method: 'DELETE' })
+
+export const toggleLike = (id: string) => request<NewsItem>(`/news/${id}/like`, { method: 'POST' })
