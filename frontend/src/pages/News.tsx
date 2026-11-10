@@ -1,17 +1,27 @@
-const news = [
-  { date: '2026-11-10', title: 'Запущено Docker-окружение', text: 'Laravel, React и MongoDB работают в контейнерах.' },
-  { date: '2026-11-10', title: 'Подключена MongoDB', text: 'Laravel работает с базой через mongodb/laravel-mongodb.' },
-  { date: '2026-11-10', title: 'Готов каркас сайта', text: 'Добавлены шапка, подвал и пять страниц.' },
-]
+import { useEffect, useState } from 'react'
+import { fetchNews, type NewsItem } from '../api/news'
 
 export default function News() {
+  const [news, setNews] = useState<NewsItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    fetchNews()
+      .then(setNews)
+      .catch((e: Error) => setError(e.message))
+      .finally(() => setLoading(false))
+  }, [])
+
   return (
     <section>
       <h1>Новости</h1>
+      {loading && <p>Загрузка...</p>}
+      {error && <p>{error}</p>}
       <div className="news">
-        {news.map(({ date, title, text }) => (
-          <article key={title} className="card">
-            <time>{date}</time>
+        {news.map(({ id, published_at, title, text }) => (
+          <article key={id} className="card">
+            <time>{published_at}</time>
             <h3>{title}</h3>
             <p>{text}</p>
           </article>
