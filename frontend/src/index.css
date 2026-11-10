@@ -164,3 +164,42 @@ button.button {
   font: inherit;
   cursor: pointer;
 }
+
+.page-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.page-head .button {
+  margin: 0;
+}
+
+.form textarea {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font: inherit;
+  resize: vertical;
+}
+
+.card__actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.card__actions a,
+.card__actions button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  cursor: pointer;
+}
+
+.card__actions button {
+  color: #dc2626;
+}
