@@ -10,7 +10,7 @@ class News extends Model
 
     protected $collection = 'news';
 
-    protected $fillable = ['title', 'text', 'published_at'];
+    protected $fillable = ['title', 'text', 'published_at', 'user_id', 'author_name'];
 
     protected $casts = ['published_at' => 'date:Y-m-d'];
 }
