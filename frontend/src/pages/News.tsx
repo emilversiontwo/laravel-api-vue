@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { deleteNews, fetchNews, type NewsItem } from '../api/news'
+import { deleteNews, fetchNews, toggleLike, type NewsItem } from '../api/news'
 import { useAuth } from '../hooks/useAuth'
 
 export default function News() {
@@ -26,6 +26,15 @@ export default function News() {
     }
   }
 
+  async function handleLike(id: string) {
+    try {
+      const updated = await toggleLike(id)
+      setNews((items) => items.map((item) => (item.id === id ? updated : item)))
+    } catch (e) {
+      setError((e as Error).message)
+    }
+  }
+
   return (
     <section>
       <div className="page-head">
@@ -39,19 +48,29 @@ export default function News() {
       {loading && <p>Загрузка...</p>}
       {error && <p className="form__error">{error}</p>}
       <div className="news">
-        {news.map(({ id, published_at, title, text, user_id, author_name }) => (
+        {news.map(({ id, published_at, title, text, user_id, author_name, likes_count, liked }) => (
           <article key={id} className="card">
             <time>
               {published_at} · {author_name}
             </time>
             <h3>{title}</h3>
             <p>{text}</p>
-            {user?.id === user_id && (
-              <div className="card__actions">
-                <Link to={`/news/${id}/edit`}>Изменить</Link>
-                <button onClick={() => handleDelete(id)}>Удалить</button>
-              </div>
-            )}
+            <div className="card__actions">
+              <button
+                className={liked ? 'like like--active' : 'like'}
+                onClick={() => handleLike(id)}
+                disabled={!user}
+                title={user ? '' : 'Войдите, чтобы ставить лайки'}
+              >
+                {liked ? '♥' : '♡'} {likes_count}
+              </button>
+              {user?.id === user_id && (
+                <>
+                  <Link to={`/news/${id}/edit`}>Изменить</Link>
+                  <button onClick={() => handleDelete(id)}>Удалить</button>
+                </>
+              )}
+            </div>
           </article>
         ))}
       </div>

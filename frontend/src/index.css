@@ -203,3 +203,15 @@ button.button {
 .card__actions button {
   color: #dc2626;
 }
+
+.card__actions .like {
+  color: var(--text);
+}
+
+.card__actions .like--active {
+  color: #e11d48;
+}
+
+.card__actions .like:disabled {
+  cursor: default;
+}
