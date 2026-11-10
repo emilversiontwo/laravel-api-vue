@@ -1,0 +1,101 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+vars:
+  IMAGES_FILE: docker/images/images.tar
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmd: task --list
+    silent: true
+
+  # --- Docker ---
+  build:
+    desc: Build all images
+    cmd: docker compose build
+
+  up:
+    desc: Start all services in background
+    cmd: docker compose up -d
+
+  down:
+    desc: Stop and remove containers
+    cmd: docker compose down
+
+  restart:
+    desc: Restart all services
+    cmd: docker compose restart
+
+  ps:
+    desc: List running services
+    cmd: docker compose ps
+
+  logs:
+    desc: Follow logs (task logs -- backend)
+    cmd: docker compose logs -f {{.CLI_ARGS}}
+
+  # --- Offline images (build on host, load in sandbox) ---
+  images:save:
+    desc: Pull and save all images to docker/images/images.tar (run on host after `task build`)
+    cmds:
+      - mkdir -p docker/images
+      - docker compose pull --ignore-buildable
+      - docker save -o {{.IMAGES_FILE}} $(docker compose config --images)
+
+  images:load:
+    desc: Load images from docker/images/images.tar
+    cmd: docker load -i {{.IMAGES_FILE}}
+
+  # --- Shells ---
+  shell:backend:
+    desc: Shell in the backend (php) container
+    cmd: docker compose exec backend bash
+
+  shell:frontend:
+    desc: Shell in the frontend (node) container
+    cmd: docker compose exec frontend bash
+
+  shell:mongo:
+    desc: Mongo shell
+    cmd: docker compose exec mongo mongosh -u root -p example
+
+  # --- Laravel ---
+  composer:
+    desc: Run composer (task composer -- require mongodb/laravel-mongodb)
+    cmd: docker compose exec backend composer {{.CLI_ARGS}}
+
+  artisan:
+    desc: Run artisan (task artisan -- migrate)
+    cmd: docker compose exec backend php artisan {{.CLI_ARGS}}
+
+  backend:install:
+    desc: Install composer deps, create .env and app key
+    cmds:
+      - docker compose exec backend composer install
+      - docker compose exec backend php -r "file_exists('.env') || copy('.env.example', '.env');"
+      - docker compose exec backend php artisan key:generate
+
+  test:
+    desc: Run Laravel tests
+    cmd: docker compose exec backend php artisan test
+
+  # --- Frontend ---
+  npm:
+    desc: Run npm in frontend (task npm -- install axios)
+    cmd: docker compose exec frontend npm {{.CLI_ARGS}}
+
+  lint:
+    desc: Lint frontend
+    cmd: docker compose exec frontend npm run lint
+
+  copy-modules:
+    desc: Copy all modules from container
+    cmd: docker cp "$(docker compose ps -q frontend)":/app/node_modules ./frontend/node_modules
+
+  # --- Cleanup ---
+  clean:
+    desc: Stop containers and remove volumes (deletes Mongo data)
+    prompt: This will delete all volumes including the Mongo data. Continue?
+    cmd: docker compose down -v
